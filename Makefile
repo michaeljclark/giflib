@@ -8,7 +8,7 @@
 #
 OFLAGS = -O0 -g
 OFLAGS  = -O2
-CFLAGS  = -std=gnu99 -fPIC -Wall -Wno-format-truncation $(OFLAGS)
+CFLAGS  = -std=gnu99 -fPIC -Wall -Wno-format-truncation -Iinclude $(OFLAGS)
 
 SHELL = /bin/sh
 TAR = tar
@@ -28,36 +28,36 @@ LIBMINOR=2
 LIBPOINT=0
 LIBVER=$(LIBMAJOR).$(LIBMINOR).$(LIBPOINT)
 
-SOURCES = dgif_lib.c egif_lib.c gifalloc.c gif_err.c gif_font.c \
-	gif_hash.c openbsd-reallocarray.c
-HEADERS = gif_hash.h  gif_lib.h  gif_lib_private.h
+SOURCES = src/dgif_lib.c src/egif_lib.c src/gifalloc.c src/gif_err.c \
+	src/gif_font.c src/gif_hash.c src/openbsd-reallocarray.c
+HEADERS = include/gif_hash.h include/gif_lib.h include/gif_lib_private.h
 OBJECTS = $(SOURCES:.c=.o)
 
-USOURCES = qprintf.c quantize.c getarg.c 
-UHEADERS = getarg.h
+USOURCES = examples/qprintf.c examples/quantize.c examples/getarg.c
+UHEADERS = examples/getarg.h
 UOBJECTS = $(USOURCES:.c=.o)
 
 # Some utilities are installed
 INSTALLABLE = \
-	gif2rgb \
-	gifbuild \
-	giffix \
-	giftext \
-	giftool \
-	gifclrmp
+	examples/gif2rgb \
+	examples/gifbuild \
+	examples/giffix \
+	examples/giftext \
+	examples/giftool \
+	examples/gifclrmp
 
 # Some utilities are only used internally for testing.
 # There is a parallel list in doc/Makefile.
 # These are all candidates for removal in future releases.
 UTILS = $(INSTALLABLE) \
-	gifbg \
-	gifcolor \
-	gifecho \
-	giffilter \
-	gifhisto \
-	gifinto \
-	gifsponge \
-	gifwedge
+	examples/gifbg \
+	examples/gifcolor \
+	examples/gifecho \
+	examples/giffilter \
+	examples/gifhisto \
+	examples/gifinto \
+	examples/gifsponge \
+	examples/gifwedge
 
 LDLIBS=libgif.a -lm
 
@@ -73,7 +73,7 @@ libgif.a: $(OBJECTS) $(HEADERS)
 	$(AR) rcs libgif.a $(OBJECTS)
 
 libutil.so: $(UOBJECTS) $(UHEADERS)
-	$(CC) $(CFLAGS) -shared $(LDFLAGS) -Wl,-soname -Wl,libutil.so.$(LIBMAJOR) -o libutil.so $(UOBJECTS)
+	$(CC) $(CFLAGS) -shared $(LDFLAGS) -Wl,-soname -Wl,libutil.so.$(LIBMAJOR) -o libutil.so $(UOBJECTS) libgif.so
 
 libutil.a: $(UOBJECTS) $(UHEADERS)
 	$(AR) rcs libutil.a $(UOBJECTS)
@@ -95,7 +95,7 @@ install-bin: $(INSTALLABLE)
 	$(INSTALL) $^ "$(DESTDIR)$(BINDIR)"
 install-include:
 	$(INSTALL) -d "$(DESTDIR)$(INCDIR)"
-	$(INSTALL) -m 644 gif_lib.h "$(DESTDIR)$(INCDIR)"
+	$(INSTALL) -m 644 include/gif_lib.h "$(DESTDIR)$(INCDIR)"
 install-lib:
 	$(INSTALL) -d "$(DESTDIR)$(LIBDIR)"
 	$(INSTALL) -m 644 libgif.a "$(DESTDIR)$(LIBDIR)/libgif.a"
