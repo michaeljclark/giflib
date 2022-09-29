@@ -12,6 +12,11 @@ option(GIF_INSTALL_EXAMPLES "Install exmaples" ON)
 
 include(CheckCSourceCompiles)
 include(CheckLibraryExists)
+include(CheckCCompilerFlag)
+
+macro(add_compiler_flag)
+   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${ARGN}")
+endmacro(add_compiler_flag)
 
 check_library_exists(m sqrtf "" has_libm)
 check_c_source_compiles("#include <stdlib.h>
@@ -29,6 +34,26 @@ string(REGEX REPLACE "#define GIFLIB_MAJOR ([0-9]+)" "\\1" GIF_MAJOR ${gif_v_maj
 string(REGEX REPLACE "#define GIFLIB_MINOR ([0-9]+)" "\\1" GIF_MINOR ${gif_v_minor})
 string(REGEX REPLACE "#define GIFLIB_RELEASE ([0-9]+)" "\\1" GIF_RELEASE ${gif_v_release})
 set(GIF_VERSION "${GIF_MAJOR}.${GIF_MINOR}.${GIF_RELEASE}")
+
+#
+# supress some worrisome gcc warnings
+#
+
+# examples/giftext.c:388:34: warning: ‘__builtin___snprintf_chk’ output
+# truncated before the last format character [-Wformat-truncation=]
+#
+check_c_compiler_flag("-Wno-format-truncation" has_no_fmt_truncation)
+if(has_no_fmt_truncation)
+	add_compiler_flag(-Wno-format-truncation)
+endif()
+
+# examples/giftool.c:70:11: warning: ‘%s’ directive argument is null
+# [-Wformat-overflow=] inlined from ‘getbool’
+#
+check_c_compiler_flag("-Wno-format-overflow" has_no_fmt_overflow)
+if(has_no_fmt_overflow)
+	add_compiler_flag(-Wno-format-overflow)
+endif()
 
 #
 # giflib library
