@@ -12,7 +12,12 @@ SPDX-License-Identifier: MIT
 #include <fcntl.h>
 #include <stdbool.h>
 
-#include "getopt.h"
+#ifdef _WIN32
+#include "ya_getopt.h"
+#else
+#include <getopt.h>
+#endif
+
 #include "gif_lib.h"
 #include "getarg.h"
 

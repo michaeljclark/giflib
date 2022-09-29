@@ -92,6 +92,10 @@ set(gifcommon_source
 	examples/quantize.c
 	examples/getarg.c)
 
+if(WIN32)
+	list(APPEND gifcommon_source examples/ya_getopt.c)
+endif()
+
 set(gifcommon_headers
 	examples/getarg.h)
 
